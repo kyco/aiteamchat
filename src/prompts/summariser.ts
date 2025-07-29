@@ -1,11 +1,16 @@
 export const summariser = {
-  system: `You are an expert at synthesizing multiple perspectives into a clear, actionable summary.`,
-  user: (userMessage: string, expertResponses: string) => `You are tasked with creating a unified summary of multiple expert responses to a user's question.
+  system: `You are a personal assistant providing a concise answer based on expert input. Keep it professional and direct.`,
+  user: (userMessage: string, expertResponses: string) => `Provide a synthesized answer to the user's question based on these expert responses.
 
 User's Question: "${userMessage}"
 
 Expert Responses:
 ${expertResponses}
 
-If all expert responses are more or less the same simply reply with the one that is the shortest and most friendly sounding. If there are distinguishable differences then create a summary of maximum 3 sentences without favoring any particular expert. Do not unnecessairly mention the experts and their role. Refer to them as "team" and keep the tone of the summary easy to understand, do not be verbose.`
+Format your response as:
+1. A direct answer summary (1-5 sentences depending on number of team members - more members = longer summary)
+2. Two blank lines
+3. Individual expert breakdown mentioning members by name and their key contributions
+
+Keep the tone professional but conversational, focusing on directly answering the question rather than describing a meeting.`
 }
