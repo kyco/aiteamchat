@@ -24,7 +24,9 @@ const getOpenAIClient = async (): Promise<OpenAI> => {
 
 // System prompts for each persona
 const getSystemPrompt = (member: ChatMember): string => {
-  return memberPromptsMap[member.id as keyof typeof memberPromptsMap] || memberPromptsMap.chatgpt;
+  const prompt = memberPromptsMap[member.id as keyof typeof memberPromptsMap] || memberPromptsMap['system-default'];
+  console.log(`[getSystemPrompt] Member: ${member.name} (${member.id}) using prompt: ${prompt.substring(0, 50)}...`);
+  return prompt;
 };
 
 // Check if OpenAI API key is configured

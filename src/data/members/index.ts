@@ -14,11 +14,11 @@ export const defaultMembersData: ChatMember[] = [
 ];
 
 export const memberPromptsMap: Record<string, string> = {
-  chatgpt: chatgpt.prompt!,
-  susan: susan.prompt!,
-  damian: damian.prompt!,
-  anthony: anthony.prompt!,
-  steveJobs: steveJobs.prompt!
+  'system-default': chatgpt.prompt!,
+  'system-project-manager': susan.prompt!,
+  'system-senior-dev': damian.prompt!,
+  'system-strategic-thinker': anthony.prompt!,
+  'system-steve-jobs': steveJobs.prompt!
 };
 
 export {

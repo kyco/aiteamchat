@@ -5,11 +5,11 @@ import { roleGenerator } from './role-generator';
 import { descriptionGenerator } from './description-generator';
 
 export const prompts = {
-  chatgpt: memberPromptsMap.chatgpt,
-  susan: memberPromptsMap.susan,
-  damian: memberPromptsMap.damian,
-  anthony: memberPromptsMap.anthony,
-  steveJobs: memberPromptsMap.steveJobs,
+  chatgpt: memberPromptsMap['system-default'],
+  susan: memberPromptsMap['system-project-manager'],
+  damian: memberPromptsMap['system-senior-dev'],
+  anthony: memberPromptsMap['system-strategic-thinker'],
+  steveJobs: memberPromptsMap['system-steve-jobs'],
   summariser,
   bulletPoints,
   roleGenerator,
