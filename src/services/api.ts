@@ -2,8 +2,8 @@ import { ChatMember, MemberResponse, MessageExchange } from '../types/chat';
 import OpenAI from 'openai';
 import { prompts } from '../prompts';
 import { OPENAI_MODEL } from '../config/constants';
-import { memberPromptsMap } from '../data/members/index';
 import { apiKeyService } from './apiKeyService';
+import { chatgpt } from '../data/members/chatgpt';
 
 // OpenAI client will be initialized dynamically with the current API key
 let openaiClient: OpenAI | null = null;
@@ -24,7 +24,7 @@ const getOpenAIClient = async (): Promise<OpenAI> => {
 
 // System prompts for each persona
 const getSystemPrompt = (member: ChatMember): string => {
-  const prompt = memberPromptsMap[member.id as keyof typeof memberPromptsMap] || memberPromptsMap['system-default'];
+  const prompt = member.prompt || chatgpt.prompt!;
   console.log(`[getSystemPrompt] Member: ${member.name} (${member.id}) using prompt: ${prompt.substring(0, 50)}...`);
   return prompt;
 };
