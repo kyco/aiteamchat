@@ -148,14 +148,14 @@ function App() {
   };
 
   const handleSendMessage = async (content: string) => {
-    // Auto-select ChatGPT if no members are selected
+    // Auto-select first user if no members are selected
     if (chatState.selectedMembers.length === 0) {
-      const chatGPT = allMembers.find(member => member.id === 'chatgpt');
-      if (chatGPT) {
+      const firstUser = userMembers.find(member => !member.isHidden);
+      if (firstUser) {
         setChatState(prev => ({
           ...prev,
-          selectedMembers: [chatGPT],
-          activeTab: chatGPT.id
+          selectedMembers: [firstUser],
+          activeTab: firstUser.id
         }));
       }
     }
@@ -166,9 +166,9 @@ function App() {
     let conversation: ConversationEntry;
     let isNewConversation = false;
 
-    // Get the current selected members (including auto-selected ChatGPT)
+    // Get the current selected members (including auto-selected first user)
     const currentSelectedMembers = chatState.selectedMembers.length === 0
-      ? [allMembers.find(member => member.id === 'chatgpt')].filter(Boolean) as ChatMember[]
+      ? [userMembers.find(member => !member.isHidden)].filter(Boolean) as ChatMember[]
       : chatState.selectedMembers;
 
     // Create new exchange with initial loading states for all members
@@ -579,8 +579,8 @@ function App() {
         selectedMembers: prev.selectedMembers.map(m => m.id === updatedMember.id ? updatedMember : m)
       }));
 
-      // Save to database - now include default members (except ChatGPT)
-      if (isDbInitialized && updatedMember.id !== 'chatgpt') {
+      // Save to database - now include default members (except first default member)
+      if (isDbInitialized && updatedMember.id !== 'system-default') {
         await dbService.updateCustomMember(updatedMember);
         console.log('Member updated in database');
       }
