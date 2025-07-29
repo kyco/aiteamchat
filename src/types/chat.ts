@@ -12,14 +12,6 @@ export interface ChatMember {
   strengths?: string[];
 }
 
-export interface Message {
-  id: string;
-  content: string;
-  sender: 'user' | 'ai';
-  memberId?: string;
-  timestamp: Date;
-}
-
 export interface MemberResponse {
   memberId: string;
   content: string;

@@ -55,12 +55,12 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   // Function to render response content with special handling for API key errors
   const renderResponseContent = (content: string) => {
     const apiKeyErrorPattern = /OpenAI API key not configured\. Please add your API key in Settings\./;
-    
+
     if (apiKeyErrorPattern.test(content)) {
       return (
         <div>
           <span>OpenAI API key not configured. Please </span>
-          <button 
+          <button
             onClick={onShowSettings}
             style={{
               background: 'none',
@@ -78,7 +78,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
         </div>
       );
     }
-    
+
     return <ReactMarkdown>{content}</ReactMarkdown>;
   };
 
@@ -166,10 +166,6 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                       <div className="tab-content">
                         {activeTab === 'primary' && hasPrimaryTab && (
                           <div className="primary-summary">
-                            {(() => {
-                              console.log('Rendering summary tab, summaryPhase:', exchange.summaryPhase, 'primarySummary:', exchange.primarySummary ? exchange.primarySummary.substring(0, 100) + '...' : 'null/undefined');
-                              return null;
-                            })()}
                             {exchange.summaryPhase === 'waiting-for-members' ? (
                               <div className="loading-state">
                                 <div className="typing-indicator">
