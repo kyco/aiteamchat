@@ -3,6 +3,7 @@ import { damian } from './damian';
 import { anthony } from './anthony';
 import { chatgpt } from './chatgpt';
 import { steveJobs } from './steve-jobs';
+import { goethe } from './goethe';
 import { ChatMember } from '../../types/chat';
 
 export const defaultMembersData: ChatMember[] = [
@@ -10,7 +11,8 @@ export const defaultMembersData: ChatMember[] = [
   susan,
   damian,
   anthony,
-  steveJobs
+  steveJobs,
+  goethe
 ];
 
 export {
@@ -18,5 +20,6 @@ export {
   damian,
   anthony,
   chatgpt,
-  steveJobs
+  steveJobs,
+  goethe
 };
