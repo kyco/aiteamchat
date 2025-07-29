@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ChatMember } from '../types/chat';
 import { CustomMemberModal } from './CustomMemberModal';
 import { renderAvatar } from '../utils/avatar';
+import { sortMembers } from '../utils/memberSort';
 
 interface AddMembersProps {
   members: ChatMember[];
@@ -59,7 +60,7 @@ export const AddMembers: React.FC<AddMembersProps> = ({
           </div>
 
           <div className="member-management-list">
-            {members.filter(member => member.isSystem).map((member) => (
+            {sortMembers(members.filter(member => member.isSystem)).map((member) => (
               <div
                 key={member.id}
                 className="member-management-item"

@@ -13,6 +13,7 @@ import { EditMemberModal } from './components/EditMemberModal';
 import { MemberManagement } from './components/MemberManagement';
 import { AddMembers } from './components/AddMembers';
 import { Settings } from './components/Settings';
+import { sortMembers } from './utils/memberSort';
 import './App.css';
 
 function App() {
@@ -31,8 +32,8 @@ function App() {
   const [showAddMembers, setShowAddMembers] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [memberInfoOpenedFromManagement, setMemberInfoOpenedFromManagement] = useState(false);
-  const [allMembers, setAllMembers] = useState<ChatMember[]>(defaultMembers);
-  const [userMembers, setUserMembers] = useState<ChatMember[]>(defaultMembers.filter(member => member.isDefault)); // Start with all default members
+  const [allMembers, setAllMembers] = useState<ChatMember[]>(sortMembers(defaultMembers));
+  const [userMembers, setUserMembers] = useState<ChatMember[]>(sortMembers(defaultMembers.filter(member => member.isDefault))); // Start with all default members
   const [selectedConversation, setSelectedConversation] = useState<ConversationEntry | null>(null);
   const [isDbInitialized, setIsDbInitialized] = useState(false);
 
@@ -100,7 +101,7 @@ function App() {
           }))
         ];
 
-        setAllMembers(allMembersWithPreferences);
+        setAllMembers(sortMembers(allMembersWithPreferences));
 
         // Set user members - for first-time users, include all default members and save them to DB
         // For returning users, load from the saved user member IDs
@@ -110,7 +111,7 @@ function App() {
             isHidden: memberPreferences[member.id]?.isHidden || false
           }));
 
-          setUserMembers(defaultMembersWithPreferences);
+          setUserMembers(sortMembers(defaultMembersWithPreferences));
 
           // Save the default members to the user members store for future loads
           for (const member of defaultMembersWithPreferences) {
@@ -140,7 +141,7 @@ function App() {
             }
           }
 
-          setUserMembers(userMembersList);
+          setUserMembers(sortMembers(userMembersList));
         }
 
         console.log('Database initialized successfully');
@@ -156,14 +157,14 @@ function App() {
   const handleCreateCustomMember = async (newMember: ChatMember) => {
     try {
       // Add to allMembers state
-      setAllMembers(prev => [...prev, newMember]);
+      setAllMembers(prev => sortMembers([...prev, newMember]));
       setChatState(prev => ({
         ...prev,
         customMembers: [...prev.customMembers, newMember]
       }));
 
       // Add to user's personal members list
-      setUserMembers(prev => [...prev, newMember]);
+      setUserMembers(prev => sortMembers([...prev, newMember]));
 
       // Save to IndexedDB
       if (isDbInitialized) {
@@ -567,7 +568,7 @@ function App() {
       if (isAlreadyInUserList) {
         return prev; // Member already in user's list
       }
-      return [...prev, member];
+      return sortMembers([...prev, member]);
     });
 
     // Save to database if not already there

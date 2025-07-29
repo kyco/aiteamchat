@@ -1,6 +1,7 @@
 import React from 'react';
 import { ChatMember } from '../types/chat';
 import { renderAvatar } from '../utils/avatar';
+import { sortMembers } from '../utils/memberSort';
 
 interface MemberSelectorProps {
   members: ChatMember[];
@@ -31,8 +32,8 @@ export const MemberSelector: React.FC<MemberSelectorProps> = ({
     onMemberInfoClick(member);
   };
 
-  // Filter out hidden members for the main display
-  const visibleMembers = members.filter(member => !member.isHidden);
+  // Filter out hidden members for the main display and sort consistently
+  const visibleMembers = sortMembers(members.filter(member => !member.isHidden));
 
   return (
     <div className="member-selector">

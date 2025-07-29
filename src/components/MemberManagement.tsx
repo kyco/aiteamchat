@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ChatMember } from '../types/chat';
 import { ConfirmDialog } from './ConfirmDialog';
 import { renderAvatar } from '../utils/avatar';
+import { sortMembers } from '../utils/memberSort';
 
 interface MemberManagementProps {
   members: ChatMember[];
@@ -69,7 +70,7 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
           {!members.length?
             <div className="no-members">No members selected. Go to the "Add" screen to add system experts or create your own.</div>
           :null}
-          {members.map((member) => (
+          {sortMembers(members).map((member) => (
             <div
               key={member.id}
               className="member-management-item"
