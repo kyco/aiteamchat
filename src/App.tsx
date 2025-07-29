@@ -12,6 +12,7 @@ import { MemberInfoDisplay } from './components/MemberInfoDisplay';
 import { EditMemberModal } from './components/EditMemberModal';
 import { MemberManagement } from './components/MemberManagement';
 import { AddMembers } from './components/AddMembers';
+import { Settings } from './components/Settings';
 import './App.css';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
   const [showMemberInfo, setShowMemberInfo] = useState<ChatMember | null>(null);
   const [showMemberManagement, setShowMemberManagement] = useState(false);
   const [showAddMembers, setShowAddMembers] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [memberInfoOpenedFromManagement, setMemberInfoOpenedFromManagement] = useState(false);
   const [allMembers, setAllMembers] = useState<ChatMember[]>(defaultMembers);
   const [userMembers, setUserMembers] = useState<ChatMember[]>(defaultMembers.filter(member => member.isDefault)); // Start with all default members
@@ -506,6 +508,7 @@ function App() {
     setShowMemberManagement(true);
     setShowMemberInfo(null);
     setShowAddMembers(false);
+    setShowSettings(false);
     setMemberInfoOpenedFromManagement(false); // Reset the flag
     // Keep selectedConversation intact to maintain visual selection in sidebar
   };
@@ -514,6 +517,16 @@ function App() {
     setShowAddMembers(true);
     setShowMemberInfo(null);
     setShowMemberManagement(false);
+    setShowSettings(false);
+    // Keep selectedConversation intact to maintain visual selection in sidebar
+  };
+
+  const handleShowSettings = () => {
+    setShowSettings(true);
+    setShowMemberInfo(null);
+    setShowMemberManagement(false);
+    setShowAddMembers(false);
+    setMemberInfoOpenedFromManagement(false);
     // Keep selectedConversation intact to maintain visual selection in sidebar
   };
 
@@ -656,6 +669,7 @@ function App() {
     setShowMemberInfo(null); // Clear member info when selecting a conversation
     setShowMemberManagement(false);
     setShowAddMembers(false);
+    setShowSettings(false);
     setMemberInfoOpenedFromManagement(false); // Reset the flag
     // Update active tab to primary if multiple responses in the latest exchange, otherwise to the single member
     const latestExchange = conversation.exchanges[conversation.exchanges.length - 1];
@@ -695,13 +709,24 @@ function App() {
     setShowMemberInfo(null);
     setShowMemberManagement(false);
     setShowAddMembers(false);
+    setShowSettings(false);
     setMemberInfoOpenedFromManagement(false); // Reset the flag
   };  return (
     <div className="app">
       <div className="app-container">
         <aside className="sidebar">
           <div className="app-header">
-            <h1>AI Team Chat</h1>
+            <div className="app-header-content">
+              <h1>AI Team Chat</h1>
+              <button
+                className="settings-btn"
+                onClick={handleShowSettings}
+                title="Settings"
+                aria-label="Open settings"
+              >
+                ⚙️
+              </button>
+            </div>
             <p className="selected-members">
               {chatState.selectedMembers.length === 0
                 ? "No members selected"
@@ -717,6 +742,7 @@ function App() {
             onAddMembers={handleAddMembers}
             onManageMembers={handleManageMembers}
             onNewChat={handleNewChat}
+            onShowSettings={handleShowSettings}
           />
           <ConversationHistory
             conversations={chatState.conversations}
@@ -748,15 +774,20 @@ function App() {
               onCreateMember={handleCreateCustomMember}
               onMemberInfoClick={handleMemberInfoClick}
             />
+          ) : showSettings ? (
+            <Settings
+              onClose={() => setShowSettings(false)}
+            />
           ) : (
             <ChatInterface
               conversation={selectedConversation}
               selectedMembers={chatState.selectedMembers}
               isLoading={isLoading}
+              onShowSettings={handleShowSettings}
             />
           )}
           {/* Only show MessageInput when not in management screens */}
-          {!showMemberManagement && !showAddMembers && (
+          {!showMemberManagement && !showAddMembers && !showSettings && (
             <MessageInput
               onSendMessage={handleSendMessage}
               disabled={isLoading}

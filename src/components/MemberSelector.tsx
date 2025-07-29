@@ -10,6 +10,7 @@ interface MemberSelectorProps {
   onAddMembers: () => void;
   onManageMembers: () => void;
   onNewChat: () => void;
+  onShowSettings: () => void;
 }
 
 export const MemberSelector: React.FC<MemberSelectorProps> = ({
@@ -19,7 +20,8 @@ export const MemberSelector: React.FC<MemberSelectorProps> = ({
   onMemberInfoClick,
   onAddMembers,
   onManageMembers,
-  onNewChat
+  onNewChat,
+  onShowSettings
 }) => {
   const isSelected = (member: ChatMember) =>
     selectedMembers.some(selected => selected.id === member.id);

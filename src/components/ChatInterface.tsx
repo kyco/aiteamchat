@@ -8,12 +8,14 @@ interface ChatInterfaceProps {
   conversation: ConversationEntry | null;
   selectedMembers: ChatMember[];
   isLoading: boolean;
+  onShowSettings?: () => void;
 }
 
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   conversation,
   selectedMembers, // Keep for backward compatibility and new messages
-  isLoading
+  isLoading,
+  onShowSettings
 }) => {
   const [activeExchangeTab, setActiveExchangeTab] = useState<{ [exchangeId: string]: string }>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -48,6 +50,36 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       ...prev,
       [exchangeId]: tabId
     }));
+  };
+
+  // Function to render response content with special handling for API key errors
+  const renderResponseContent = (content: string) => {
+    const apiKeyErrorPattern = /OpenAI API key not configured\. Please add your API key in Settings\./;
+    
+    if (apiKeyErrorPattern.test(content)) {
+      return (
+        <div>
+          <span>OpenAI API key not configured. Please </span>
+          <button 
+            onClick={onShowSettings}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#3b82f6',
+              textDecoration: 'underline',
+              cursor: 'pointer',
+              font: 'inherit',
+              padding: 0
+            }}
+          >
+            add your API key
+          </button>
+          <span> in Settings.</span>
+        </div>
+      );
+    }
+    
+    return <ReactMarkdown>{content}</ReactMarkdown>;
   };
 
   if (!conversation || conversation.exchanges.length === 0) {
@@ -157,7 +189,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                                 <p>Generating summary...</p>
                               </div>
                             ) : (
-                              <ReactMarkdown>{exchange.primarySummary || 'Summary unavailable'}</ReactMarkdown>
+                              renderResponseContent(exchange.primarySummary || 'Summary unavailable')
                             )}
                           </div>
                         )}
@@ -179,7 +211,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                                     <p>Getting response from {member.name}...</p>
                                   </div>
                                 ) : (
-                                  <ReactMarkdown>{response.content}</ReactMarkdown>
+                                  renderResponseContent(response.content)
                                 )}
                               </div>
                             </div>

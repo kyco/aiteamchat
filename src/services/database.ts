@@ -1,11 +1,12 @@
 import { ChatMember, ConversationEntry } from '../types/chat';
 
 const DB_NAME = 'AITeamChatDB';
-const DB_VERSION = 4;
+const DB_VERSION = 5;
 const MEMBERS_STORE = 'customMembers';
 const CONVERSATIONS_STORE = 'conversations';
 const MEMBER_PREFERENCES_STORE = 'memberPreferences';
 const SYSTEM_MEMBERS_STORE = 'systemMembers';
+const SETTINGS_STORE = 'settings';
 
 class DatabaseService {
   private db: IDBDatabase | null = null;
@@ -47,6 +48,11 @@ class DatabaseService {
         if (!db.objectStoreNames.contains(SYSTEM_MEMBERS_STORE)) {
           const systemMembersStore = db.createObjectStore(SYSTEM_MEMBERS_STORE, { keyPath: 'id' });
           systemMembersStore.createIndex('name', 'name', { unique: false });
+        }
+
+        // Create settings store (for app settings like API key)
+        if (!db.objectStoreNames.contains(SETTINGS_STORE)) {
+          db.createObjectStore(SETTINGS_STORE, { keyPath: 'key' });
         }
       };
     });
@@ -304,6 +310,46 @@ class DatabaseService {
       clearMembers.onsuccess = onComplete;
       clearConversations.onsuccess = onComplete;
       clearSystemMembers.onsuccess = onComplete;
+    });
+  }
+
+  // Settings Methods
+  async saveSetting(key: string, value: any): Promise<void> {
+    if (!this.db) throw new Error('Database not initialized');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction([SETTINGS_STORE], 'readwrite');
+      const store = transaction.objectStore(SETTINGS_STORE);
+      const request = store.put({ key, value });
+
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => resolve();
+    });
+  }
+
+  async getSetting(key: string): Promise<any> {
+    if (!this.db) throw new Error('Database not initialized');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction([SETTINGS_STORE], 'readonly');
+      const store = transaction.objectStore(SETTINGS_STORE);
+      const request = store.get(key);
+
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => resolve(request.result?.value || null);
+    });
+  }
+
+  async deleteSetting(key: string): Promise<void> {
+    if (!this.db) throw new Error('Database not initialized');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction([SETTINGS_STORE], 'readwrite');
+      const store = transaction.objectStore(SETTINGS_STORE);
+      const request = store.delete(key);
+
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => resolve();
     });
   }
 }

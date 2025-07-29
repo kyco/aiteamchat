@@ -3,12 +3,24 @@ import OpenAI from 'openai';
 import { prompts } from '../prompts';
 import { OPENAI_MODEL } from '../config/constants';
 import { memberPromptsMap } from '../data/members/index';
+import { apiKeyService } from './apiKeyService';
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.REACT_APP_OPENAI_API_KEY || '',
-  dangerouslyAllowBrowser: true // Note: In production, API calls should go through your backend
-});
+// OpenAI client will be initialized dynamically with the current API key
+let openaiClient: OpenAI | null = null;
+
+// Get or create OpenAI client with current API key
+const getOpenAIClient = async (): Promise<OpenAI> => {
+  const apiKey = await apiKeyService.getApiKey();
+
+  if (!openaiClient || apiKey !== openaiClient.apiKey) {
+    openaiClient = new OpenAI({
+      apiKey: apiKey,
+      dangerouslyAllowBrowser: true // Note: In production, API calls should go through your backend
+    });
+  }
+
+  return openaiClient;
+};
 
 // System prompts for each persona
 const getSystemPrompt = (member: ChatMember): string => {
@@ -16,8 +28,8 @@ const getSystemPrompt = (member: ChatMember): string => {
 };
 
 // Check if OpenAI API key is configured
-const isOpenAIConfigured = (): boolean => {
-  return !!process.env.REACT_APP_OPENAI_API_KEY && process.env.REACT_APP_OPENAI_API_KEY.trim() !== '';
+const isOpenAIConfigured = async (): Promise<boolean> => {
+  return await apiKeyService.isConfigured();
 };
 
 // Real OpenAI API call with conversation history
@@ -27,31 +39,30 @@ export const openaiApiCall = async (
   conversationHistory: MessageExchange[] = [],
   onProgress?: (memberId: string, content: string) => void
 ): Promise<string> => {
-  if (!isOpenAIConfigured()) {
-    const errorMessage = "No API key found, please provide an API key with credits.";
+  if (!(await isOpenAIConfigured())) {
+    const errorMessage = "OpenAI API key not configured. Please add your API key in Settings.";
     onProgress?.(member.id, errorMessage);
     return errorMessage;
   }
 
   try {
-    const systemPrompt = getSystemPrompt(member);
+    const openai = await getOpenAIClient();
 
-    // Build conversation history for this specific member
-    const messages: Array<{ role: 'system' | 'user' | 'assistant', content: string }> = [
-      { role: "system", content: systemPrompt }
+    // Build conversation context
+    const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
+      { role: 'system', content: getSystemPrompt(member) }
     ];
 
-    // Add previous exchanges to conversation history
-    for (const exchange of conversationHistory) {
-      // Add user message
-      messages.push({ role: "user", content: exchange.userMessage });
+    // Add conversation history context
+    conversationHistory.forEach(exchange => {
+      messages.push({ role: 'user', content: exchange.userMessage });
 
-      // Add this member's response if they participated in this exchange
-      const memberResponse = exchange.responses.find(response => response.memberId === member.id);
-      if (memberResponse) {
-        messages.push({ role: "assistant", content: memberResponse.content });
+      // Find this member's response in the exchange
+      const memberResponse = exchange.responses.find(r => r.memberId === member.id);
+      if (memberResponse && memberResponse.content.trim()) {
+        messages.push({ role: 'assistant', content: memberResponse.content });
       }
-    }
+    });
 
     // Add current user message
     messages.push({ role: "user", content: message });
@@ -106,37 +117,41 @@ export const openaiParallelApiCalls = async (
   return Promise.all(memberPromises);
 };
 
-// Generate primary summary using OpenAI with conversation history
+// Generate primary summary using all member responses
 export const generatePrimarySummary = async (
   memberResponses: MemberResponse[],
   userMessage: string,
   allMembers: ChatMember[],
   conversationHistory: MessageExchange[] = []
 ): Promise<string> => {
-  if (!isOpenAIConfigured()) {
-    const errorMessage = "No API key found, please provide an API key with credits.";
-    return errorMessage;
+  if (!(await isOpenAIConfigured())) {
+    return "Summary generation unavailable: OpenAI API key not configured. Please add your API key in Settings.";
   }
 
   try {
-    const expertResponses = memberResponses.map(response => {
-      const member = allMembers.find(m => m.id === response.memberId);
-      const memberName = member ? `${member.name} (${member.role})` : response.memberId;
-      return `${memberName}: ${response.content}`;
-    }).join('\n\n');
+    const openai = await getOpenAIClient();
 
-    // Build conversation context for better summary
+    // Create a context string from member responses
+    const expertResponses = memberResponses
+      .filter(response => response.content.trim() !== '')
+      .map(response => {
+        const member = allMembers.find(m => m.id === response.memberId);
+        const memberName = member?.name || 'Unknown Expert';
+        return `${memberName}: ${response.content}`;
+      })
+      .join('\n\n');
+
+    // Add conversation history context if available
     let conversationContext = '';
     if (conversationHistory.length > 0) {
       conversationContext = '\n\nPrevious conversation context:\n';
-      conversationHistory.forEach((exchange, index) => {
-        conversationContext += `\nQ${index + 1}: ${exchange.userMessage}\n`;
-        if (exchange.responses.length > 0) {
-          conversationContext += `Responses: ${exchange.responses.map(r => {
-            const member = allMembers.find(m => m.id === r.memberId);
-            return `${member?.name || r.memberId}: ${r.content.substring(0, 100)}...`;
-          }).join(' | ')}\n`;
-        }
+      conversationHistory.slice(-3).forEach(exchange => { // Only include last 3 exchanges for context
+        conversationContext += `User: ${exchange.userMessage}\n`;
+        exchange.responses.forEach(resp => {
+          const member = allMembers.find(m => m.id === resp.memberId);
+          conversationContext += `${member?.name || 'Expert'}: ${resp.content.split('.')[0]}.${resp.content.split(' ').length > 20 ? '...' : resp.content.split('.').slice(1).join('.')}\n`;
+        });
+        conversationContext += '---\n';
       });
     }
 
@@ -159,13 +174,17 @@ export const generatePrimarySummary = async (
     console.log('Error in summary generation:', errorMessage);
     return errorMessage;
   }
-};// Generate member role based on name and prompt
+};
+
+// Generate member role based on name and prompt
 export const generateMemberRole = async (name: string, prompt: string): Promise<string> => {
-  if (!isOpenAIConfigured()) {
+  if (!(await isOpenAIConfigured())) {
     return "Custom AI Assistant";
   }
 
   try {
+    const openai = await getOpenAIClient();
+
     const completion = await openai.chat.completions.create({
       model: OPENAI_MODEL,
       messages: [
@@ -191,11 +210,13 @@ export const generateMemberRole = async (name: string, prompt: string): Promise<
 
 // Generate member description based on name, role, and prompt
 export const generateMemberDescription = async (name: string, role: string, prompt: string): Promise<string> => {
-  if (!isOpenAIConfigured()) {
+  if (!(await isOpenAIConfigured())) {
     return "A custom AI assistant ready to help with various tasks.";
   }
 
   try {
+    const openai = await getOpenAIClient();
+
     const completion = await openai.chat.completions.create({
       model: OPENAI_MODEL,
       messages: [
@@ -221,11 +242,13 @@ export const generateMemberDescription = async (name: string, role: string, prom
 
 // Generate member strengths using bullet points prompt
 export const generateMemberStrengths = async (prompt: string): Promise<string[]> => {
-  if (!isOpenAIConfigured()) {
+  if (!(await isOpenAIConfigured())) {
     return [];
   }
 
   try {
+    const openai = await getOpenAIClient();
+
     const completion = await openai.chat.completions.create({
       model: OPENAI_MODEL,
       messages: [
@@ -247,8 +270,8 @@ export const generateMemberStrengths = async (prompt: string): Promise<string[]>
     // Parse the response into an array of strengths
     const strengths = response
       .split('\n')
-      .map(line => line.replace(/^[-•*]\s*/, '').trim())
-      .filter(line => line.length > 0)
+      .map((line: string) => line.replace(/^[-•*]\s*/, '').trim())
+      .filter((line: string) => line.length > 0)
       .slice(0, 5); // Ensure exactly 5 strengths
 
 
