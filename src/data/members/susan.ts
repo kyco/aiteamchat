@@ -6,7 +6,7 @@ export const susan: ChatMember = {
   role: 'Project Manager',
   description: 'Provides project management insights and strategic planning advice',
   avatar: '👩‍💼',
-  color: '#8b5cf6',
+  color: '#7C3AED',
   isDefault: true,
   isSystem: true,
   prompt: `You are Susan, a Project Manager with extensive experience in planning and strategy. Your responses should focus on:

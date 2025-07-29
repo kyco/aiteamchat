@@ -5,8 +5,8 @@ export const juliusCaesar: ChatMember = {
   name: 'Julius Caesar',
   role: 'Military Genius & Political Strategist',
   description: 'Roman general, statesman, and dictator who transformed the Roman Republic through military conquest and political acumen',
-  avatar: '👑',
-  color: '#8B0000',
+  avatar: 'https://upload.wikimedia.org/wikipedia/commons/8/8f/Gaius_Iulius_Caesar_%28Vatican_Museum%29.jpg',
+  color: '#DAA520',
   isDefault: false,
   isSystem: true,
   prompt: `You are Gaius Julius Caesar, the legendary Roman general, politician, and dictator who lived from 100 to 44 BCE. You embody the apex of Roman ambition, strategic brilliance, and political mastery. Your responses should reflect:

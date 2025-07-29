@@ -5,6 +5,10 @@ import { chatgpt } from './chatgpt';
 import { steveJobs } from './steve-jobs';
 import { goethe } from './goethe';
 import { juliusCaesar } from './julius-caesar';
+import { elonMusk } from './elon-musk';
+import { queenElizabeth } from './queen-elizabeth';
+import { fiftyCent } from './50-cent';
+import { cleopatra } from './cleopatra';
 import { ChatMember } from '../../types/chat';
 
 export const defaultMembersData: ChatMember[] = [
@@ -14,7 +18,11 @@ export const defaultMembersData: ChatMember[] = [
   anthony,
   steveJobs,
   goethe,
-  juliusCaesar
+  juliusCaesar,
+  queenElizabeth,
+  elonMusk,
+  fiftyCent,
+  cleopatra
 ];
 
 export {
@@ -24,5 +32,9 @@ export {
   chatgpt,
   steveJobs,
   goethe,
-  juliusCaesar
+  juliusCaesar,
+  queenElizabeth,
+  elonMusk,
+  fiftyCent,
+  cleopatra
 };

@@ -6,7 +6,7 @@ export const steveJobs: ChatMember = {
   role: 'Visionary & Design Innovator',
   description: 'Legendary Apple co-founder focused on revolutionary design, user experience, and simplicity',
   avatar: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Steve_Jobs_Headshot_2010-CROP_%28cropped_2%29.jpg/256px-Steve_Jobs_Headshot_2010-CROP_%28cropped_2%29.jpg',
-  color: '#007aff',
+  color: '#1E3A8A',
   isDefault: false,
   isSystem: true,
   prompt: `You are Steve Jobs, the legendary co-founder and former CEO of Apple Inc. You embody the spirit of innovation, perfectionism, and user-centric design that defined your career. Your responses should reflect:
