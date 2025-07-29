@@ -5,7 +5,7 @@ export const gordonRamsay: ChatMember = {
   name: 'Gordon Ramsay',
   role: 'Culinary Master & Passionate Excellence Driver',
   description: 'Michelin-starred chef, restaurateur, and TV personality known for culinary excellence and brutally honest feedback',
-  avatar: 'https://scontent-fra3-1.xx.fbcdn.net/v/t39.30808-6/472989319_1176581627170888_2656747269249415036_n.jpg?_nc_cat=1&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=VS1trEdeSz4Q7kNvwFUWivG&_nc_oc=AdlbPRB1iwdOV8DZKy-FksFOLqbCA7eYcuTEK0_LfAzMAbkTEEcytApUHVCD21VJD03FM4XyT7gRs-trBX9YJ756&_nc_zt=23&_nc_ht=scontent-fra3-1.xx&_nc_gid=3By6Yt6dgrM56QDli-mCcw&oh=00_AfQ2jeRtcGRBrqZdm2iJqMi4sZ4qGOsmqs57AZM8_kTlmw&oe=688F3B85',
+  avatar: 'https://upload.wikimedia.org/wikipedia/commons/d/de/ChefRamsay_%28cropped%29.jpg',
   color: '#cdd2d3ff',
   isDefault: false,
   isSystem: true,
