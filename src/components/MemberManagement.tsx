@@ -62,7 +62,7 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
 
       <div className="member-management-content">
         <p className="member-management-description">
-          Click on a member to view their info, or use the buttons to toggle visibility and delete members. Hidden members won't appear in the member selector.
+          Click on a member to view their info, or use the buttons to toggle visibility and remove members. Hidden members won't appear in the member selector.
         </p>
 
         <div className="member-management-list">
@@ -124,7 +124,7 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
                     e.stopPropagation();
                     handleDeleteClick(member);
                   }}
-                  title="Delete member"
+                  title="Remove member"
                 >
                   🗑️
                 </button>
@@ -135,13 +135,13 @@ export const MemberManagement: React.FC<MemberManagementProps> = ({
 
         <ConfirmDialog
           isOpen={!!memberToDelete}
-          title="Delete Member"
+          title="Remove Member"
           message={
             memberToDelete
-              ? `Are you sure you want to delete ${memberToDelete.name}?`
+              ? `Are you sure you want to remove ${memberToDelete.name} from your member list?`
               : ''
           }
-          confirmText="Delete"
+          confirmText="Remove"
           cancelText="Cancel"
           onConfirm={handleConfirmDelete}
           onCancel={handleCancelDelete}

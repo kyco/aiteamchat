@@ -55,6 +55,12 @@ function App() {
         // Load member preferences (for hidden state)
         const memberPreferences = await dbService.getAllMemberPreferences();
 
+        // Check if this is a first-time user
+        const isFirstTimeUser = await dbService.isFirstTimeUser();
+
+        // Load user member IDs (which members the user has added to their list)
+        const userMemberIds = await dbService.getUserMemberIds();
+
         // Load conversations
         const conversations = await dbService.getConversations();
         setChatState(prev => ({
@@ -96,24 +102,46 @@ function App() {
 
         setAllMembers(allMembersWithPreferences);
 
-        // Set user members - for first-time users, include all default members
-        // For returning users, include ChatGPT and their custom members
-        const isFirstTimeUser = customMembers.length === 0;
-        const defaultMembersWithPreferences = defaultMembers.filter(member => member.isDefault).map(member => ({
-          ...member,
-          isHidden: memberPreferences[member.id]?.isHidden || false
-        }));
+        // Set user members - for first-time users, include all default members and save them to DB
+        // For returning users, load from the saved user member IDs
+        if (isFirstTimeUser) {
+          const defaultMembersWithPreferences = defaultMembers.filter(member => member.isDefault).map(member => ({
+            ...member,
+            isHidden: memberPreferences[member.id]?.isHidden || false
+          }));
 
-        const initialUserMembers = isFirstTimeUser
-          ? defaultMembersWithPreferences // Include all default members for first-time users
-          : [
-              defaultMembers[0], // ChatGPT for returning users
-              ...customMembers.map(member => ({
-                ...member,
-                isHidden: memberPreferences[member.id]?.isHidden || false
-              }))
-            ];
-        setUserMembers(initialUserMembers);
+          setUserMembers(defaultMembersWithPreferences);
+
+          // Save the default members to the user members store for future loads
+          for (const member of defaultMembersWithPreferences) {
+            await dbService.addUserMember(member.id);
+          }
+        } else {
+          // For returning users, construct user members from saved IDs
+          const userMembersList: ChatMember[] = [];
+
+          for (const memberId of userMemberIds) {
+            // Check if it's a custom member first
+            const customMember = customMembers.find(m => m.id === memberId);
+            if (customMember) {
+              userMembersList.push({
+                ...customMember,
+                isHidden: memberPreferences[memberId]?.isHidden || false
+              });
+            } else {
+              // Check if it's a default/system member
+              const defaultMember = defaultMembers.find(m => m.id === memberId);
+              if (defaultMember) {
+                userMembersList.push({
+                  ...defaultMember,
+                  isHidden: memberPreferences[memberId]?.isHidden || false
+                });
+              }
+            }
+          }
+
+          setUserMembers(userMembersList);
+        }
 
         console.log('Database initialized successfully');
       } catch (error) {
@@ -140,7 +168,9 @@ function App() {
       // Save to IndexedDB
       if (isDbInitialized) {
         await dbService.saveCustomMember(newMember);
-        console.log('Custom member saved to database');
+        // Also add to user members so it persists in their list
+        await dbService.addUserMember(newMember.id);
+        console.log('Custom member saved to database and added to user members');
       }
     } catch (error) {
       console.error('Failed to save custom member:', error);
@@ -530,7 +560,7 @@ function App() {
     // Keep selectedConversation intact to maintain visual selection in sidebar
   };
 
-  const handleAddMemberToConversation = (member: ChatMember) => {
+  const handleAddMemberToConversation = async (member: ChatMember) => {
     // Add member to user's personal members list if not already there
     setUserMembers(prev => {
       const isAlreadyInUserList = prev.some(m => m.id === member.id);
@@ -539,6 +569,16 @@ function App() {
       }
       return [...prev, member];
     });
+
+    // Save to database if not already there
+    try {
+      if (isDbInitialized) {
+        await dbService.addUserMember(member.id);
+        console.log('User member added to database');
+      }
+    } catch (error) {
+      console.error('Failed to save user member:', error);
+    }
 
     // Also add to selected members for current conversation if not already selected
     setChatState(prev => {
@@ -598,6 +638,12 @@ function App() {
     try {
       // Remove from user's personal members list
       setUserMembers(prev => prev.filter(m => m.id !== memberId));
+
+      // Remove from user members database
+      if (isDbInitialized) {
+        await dbService.removeUserMember(memberId);
+        console.log('User member removed from database');
+      }
 
       // Check if this is a default member or custom member
       const defaultMember = defaultMembers.find(m => m.id === memberId);

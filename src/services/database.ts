@@ -1,11 +1,12 @@
 import { ChatMember, ConversationEntry } from '../types/chat';
 
 const DB_NAME = 'AITeamChatDB';
-const DB_VERSION = 5;
+const DB_VERSION = 6;
 const MEMBERS_STORE = 'customMembers';
 const CONVERSATIONS_STORE = 'conversations';
 const MEMBER_PREFERENCES_STORE = 'memberPreferences';
 const SYSTEM_MEMBERS_STORE = 'systemMembers';
+const USER_MEMBERS_STORE = 'userMembers';
 const SETTINGS_STORE = 'settings';
 
 class DatabaseService {
@@ -53,6 +54,11 @@ class DatabaseService {
         // Create settings store (for app settings like API key)
         if (!db.objectStoreNames.contains(SETTINGS_STORE)) {
           db.createObjectStore(SETTINGS_STORE, { keyPath: 'key' });
+        }
+
+        // Create user members store (tracks which members are in the user's member list)
+        if (!db.objectStoreNames.contains(USER_MEMBERS_STORE)) {
+          db.createObjectStore(USER_MEMBERS_STORE, { keyPath: 'memberId' });
         }
       };
     });
@@ -287,29 +293,33 @@ class DatabaseService {
     if (!this.db) throw new Error('Database not initialized');
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([MEMBERS_STORE, CONVERSATIONS_STORE, SYSTEM_MEMBERS_STORE], 'readwrite');
+      const transaction = this.db!.transaction([MEMBERS_STORE, CONVERSATIONS_STORE, SYSTEM_MEMBERS_STORE, USER_MEMBERS_STORE], 'readwrite');
 
       const membersStore = transaction.objectStore(MEMBERS_STORE);
       const conversationsStore = transaction.objectStore(CONVERSATIONS_STORE);
       const systemMembersStore = transaction.objectStore(SYSTEM_MEMBERS_STORE);
+      const userMembersStore = transaction.objectStore(USER_MEMBERS_STORE);
 
       const clearMembers = membersStore.clear();
       const clearConversations = conversationsStore.clear();
       const clearSystemMembers = systemMembersStore.clear();
+      const clearUserMembers = userMembersStore.clear();
 
       let completed = 0;
       const onComplete = () => {
         completed++;
-        if (completed === 3) resolve();
+        if (completed === 4) resolve();
       };
 
       clearMembers.onerror = () => reject(clearMembers.error);
       clearConversations.onerror = () => reject(clearConversations.error);
       clearSystemMembers.onerror = () => reject(clearSystemMembers.error);
+      clearUserMembers.onerror = () => reject(clearUserMembers.error);
 
       clearMembers.onsuccess = onComplete;
       clearConversations.onsuccess = onComplete;
       clearSystemMembers.onsuccess = onComplete;
+      clearUserMembers.onsuccess = onComplete;
     });
   }
 
@@ -324,6 +334,65 @@ class DatabaseService {
 
       request.onerror = () => reject(request.error);
       request.onsuccess = () => resolve();
+    });
+  }
+
+  // User Members Methods
+  async addUserMember(memberId: string): Promise<void> {
+    if (!this.db) throw new Error('Database not initialized');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction([USER_MEMBERS_STORE], 'readwrite');
+      const store = transaction.objectStore(USER_MEMBERS_STORE);
+      const request = store.put({ memberId, addedAt: new Date().toISOString() });
+
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => resolve();
+    });
+  }
+
+  async removeUserMember(memberId: string): Promise<void> {
+    if (!this.db) throw new Error('Database not initialized');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction([USER_MEMBERS_STORE], 'readwrite');
+      const store = transaction.objectStore(USER_MEMBERS_STORE);
+      const request = store.delete(memberId);
+
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => resolve();
+    });
+  }
+
+  async getUserMemberIds(): Promise<string[]> {
+    if (!this.db) throw new Error('Database not initialized');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction([USER_MEMBERS_STORE], 'readonly');
+      const store = transaction.objectStore(USER_MEMBERS_STORE);
+      const request = store.getAll();
+
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        const userMembers = request.result || [];
+        resolve(userMembers.map((um: any) => um.memberId));
+      };
+    });
+  }
+
+  async isFirstTimeUser(): Promise<boolean> {
+    if (!this.db) throw new Error('Database not initialized');
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction([USER_MEMBERS_STORE], 'readonly');
+      const store = transaction.objectStore(USER_MEMBERS_STORE);
+      const request = store.count();
+
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        // If no user members are stored, it's a first-time user
+        resolve(request.result === 0);
+      };
     });
   }
 
