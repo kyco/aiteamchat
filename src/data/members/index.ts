@@ -9,6 +9,9 @@ import { elonMusk } from './elon-musk';
 import { queenElizabeth } from './queen-elizabeth';
 import { fiftyCent } from './50-cent';
 import { cleopatra } from './cleopatra';
+import { waltDisney } from './walt-disney';
+import { gordonRamsay } from './gordon-ramsay';
+import { mariaSharapova } from './maria-sharapova';
 import { ChatMember } from '../../types/chat';
 
 export const defaultMembersData: ChatMember[] = [
@@ -22,7 +25,10 @@ export const defaultMembersData: ChatMember[] = [
   queenElizabeth,
   elonMusk,
   fiftyCent,
-  cleopatra
+  cleopatra,
+  waltDisney,
+  gordonRamsay,
+  mariaSharapova
 ];
 
 export {
@@ -36,5 +42,8 @@ export {
   queenElizabeth,
   elonMusk,
   fiftyCent,
-  cleopatra
+  cleopatra,
+  waltDisney,
+  gordonRamsay,
+  mariaSharapova
 };
