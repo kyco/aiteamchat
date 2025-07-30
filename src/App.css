@@ -45,6 +45,8 @@ body {
 .app-logo {
   height: 48px;
   width: auto;
+  max-width: calc(100% - 60px); /* Leave space for settings button */
+  object-fit: contain;
 }
 
 .app-title {
@@ -54,8 +56,6 @@ body {
   flex: 1;
   max-height: 48px; /* Match logo height */
   line-height: 48px; /* Center vertically */
-  line-height: 1;
-  margin-left: 10px;
 }
 
 .selected-member {
@@ -1757,6 +1757,9 @@ body {
   gap: 16px;
 }
 
+.message-exchange {
+}
+
 .message-bubble {
   border-radius: 8px;
   word-wrap: break-word;
@@ -2113,6 +2116,7 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 17px; /* Increased from 8px for more breathing room */
+  gap: 16px; /* Add space between logo and settings button */
 }
 
 .settings-btn {
