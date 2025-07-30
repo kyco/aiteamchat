@@ -20,10 +20,5 @@ IMPORTANT: Always mention ALL experts who were consulted, even if they:
 - Declined to provide input due to the nature of the question
 - Provided no response or empty content
 
-For experts who couldn't contribute, acknowledge this naturally:
-- For expertise boundaries: "**Gordon Ramsay** noted that this topic is outside his culinary expertise and declined to comment"
-- For technical failures: "**Steve Jobs** was unable to respond due to a technical issue"
-- For general failures: "**Julius Caesar** could not provide input at this time"
-
 Keep the tone professional but conversational, focusing on directly answering the question rather than describing a meeting.`
 }
