@@ -221,9 +221,12 @@ function App() {
       ? [userMembers.find(member => !member.isHidden)].filter(Boolean) as ChatMember[]
       : chatState.selectedMembers;
 
+    // Sort members in sidebar order to ensure consistent tab ordering
+    const sortedSelectedMembers = sortMembers(currentSelectedMembers);
+
     // Create new exchange with initial loading states for all members
     const exchangeId = `exchange-${Date.now()}`;
-    const initialResponses: MemberResponse[] = currentSelectedMembers.map(member => ({
+    const initialResponses: MemberResponse[] = sortedSelectedMembers.map(member => ({
       memberId: member.id,
       content: '',
       timestamp: new Date(),
@@ -235,8 +238,8 @@ function App() {
       userMessage: content,
       responses: initialResponses,
       timestamp: new Date(),
-      askedMembers: currentSelectedMembers,
-      summaryPhase: currentSelectedMembers.length > 1 ? 'waiting-for-members' : 'completed'
+      askedMembers: sortedSelectedMembers,
+      summaryPhase: sortedSelectedMembers.length > 1 ? 'waiting-for-members' : 'completed'
     };
 
     if (!selectedConversation) {
@@ -334,7 +337,7 @@ function App() {
 
       // Start parallel API calls for all members
       const memberResponsesPromise = openaiParallelApiCalls(
-        currentSelectedMembers,
+        sortedSelectedMembers,
         content,
         conversationHistory,
         onMemberResponse
@@ -480,7 +483,7 @@ function App() {
       };
 
       // Generate primary summary if multiple members
-      if (currentSelectedMembers.length > 1) {
+      if (sortedSelectedMembers.length > 1) {
         memberResponsesPromise.then(handleSummaryGeneration);
       }
 
@@ -488,7 +491,7 @@ function App() {
       await memberResponsesPromise;
 
       // Set active tab appropriately
-      const newActiveTab = currentSelectedMembers.length > 1 ? 'primary' : currentSelectedMembers[0].id;
+      const newActiveTab = sortedSelectedMembers.length > 1 ? 'primary' : sortedSelectedMembers[0].id;
       setChatState(prev => ({
         ...prev,
         activeTab: newActiveTab
@@ -750,23 +753,23 @@ function App() {
     setShowAddMembers(false);
     setShowSettings(false);
     setMemberInfoOpenedFromManagement(false); // Reset the flag
-    
+
     // Get the latest exchange to determine which members to select
     const latestExchange = conversation.exchanges[conversation.exchanges.length - 1];
-    
+
     // Update selected members to match those from the latest exchange
     let conversationMembers = latestExchange?.askedMembers || [];
-    
+
     // Fallback: if askedMembers is empty (backward compatibility), try to determine from responses
     if (conversationMembers.length === 0 && latestExchange?.responses?.length > 0) {
       const memberIds = latestExchange.responses.map(response => response.memberId);
       conversationMembers = allMembers.filter(member => memberIds.includes(member.id));
     }
-    
+
     // Update active tab to primary if multiple responses in the latest exchange, otherwise to the single member
     const newActiveTab = latestExchange?.responses.length > 1 ? 'primary' :
       (latestExchange?.responses[0]?.memberId || 'primary');
-    
+
     setChatState(prev => ({
       ...prev,
       selectedMembers: conversationMembers,
