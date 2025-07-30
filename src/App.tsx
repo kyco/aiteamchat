@@ -824,10 +824,17 @@ function App() {
               </button>
             </div>
             <p className="selected-members">
-              {chatState.selectedMembers.length === 0
-                ? "No members selected"
-                : `${chatState.selectedMembers.length} member${chatState.selectedMembers.length > 1 ? 's' : ''} selected`
-              }
+              {(() => {
+                const availableMembers = userMembers.filter(member => !member.isHidden);
+                const selectedCount = chatState.selectedMembers.length;
+                const totalCount = availableMembers.length;
+
+                if (selectedCount === 0) {
+                  return "No members selected";
+                }
+
+                return `${selectedCount} of ${totalCount} selected`;
+              })()}
             </p>
           </div>
           <MemberSelector
