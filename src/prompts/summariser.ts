@@ -10,8 +10,9 @@ ${expertResponses}
 Format your response as:
 1. A direct answer summary in paragraph form - NO bullet points, numbered lists, or formatting (1-5 sentences depending on number of team members - more members = longer summary)
 2. Two blank lines
-3. Individual expert breakdown in a natural, conversational style (e.g., "**Cleopatra** thinks that strategic alliances are crucial..." or "**Steve Jobs** believes innovation requires...")
-4. If there are significant differences or contrasting viewpoints between experts, add two blank lines and include a brief summary of these contrasts (1-3 sentences, or more if there are many members with differing views)
+3. Individual expert breakdown in a natural, conversational style, with each expert in their own paragraph (e.g., "**Cleopatra** thinks that strategic alliances are crucial..." followed by a line break, then "**Steve Jobs** believes innovation requires..." in the next paragraph)
+4. Two blank lines
+5. **Contrasts:** If there are genuine disagreements or conflicting viewpoints, describe them briefly (e.g., "**Cleopatra** says it's hot while **Gordon** says he doesn't care"). If the experts generally agree or reach consensus, mention this instead (e.g., "All experts agree on this approach" or "There's general consensus among the team").
 
 IMPORTANT: Always mention ALL experts who were consulted, even if they:
 - Refused to answer because the topic was outside their expertise
