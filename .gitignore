@@ -12,9 +12,6 @@ dist/
 .env.test.local
 .env.production.local
 
-# TanStack Router auto-generated files
-src/routeTree.gen.ts
-
 # Vite
 .vite/
 
