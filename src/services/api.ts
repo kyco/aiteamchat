@@ -149,10 +149,16 @@ export const generatePrimarySummary = async (
       conversationContext = '\n\nPrevious conversation context:\n';
       conversationHistory.slice(-3).forEach(exchange => { // Only include last 3 exchanges for context
         conversationContext += `User: ${exchange.userMessage}\n`;
-        exchange.responses.forEach(resp => {
-          const member = allMembers.find(m => m.id === resp.memberId);
-          conversationContext += `${member?.name || 'Expert'}: ${resp.content.split('.')[0]}.${resp.content.split(' ').length > 20 ? '...' : resp.content.split('.').slice(1).join('.')}\n`;
-        });
+
+        // Only include responses from members that were actually asked in this exchange
+        const askedMemberIds = exchange.askedMembers?.map(m => m.id) || [];
+        exchange.responses
+          .filter(resp => askedMemberIds.includes(resp.memberId))
+          .forEach(resp => {
+            const member = exchange.askedMembers?.find(m => m.id === resp.memberId) ||
+                           allMembers.find(m => m.id === resp.memberId);
+            conversationContext += `${member?.name || 'Expert'}: ${resp.content.split('.')[0]}.${resp.content.split(' ').length > 20 ? '...' : resp.content.split('.').slice(1).join('.')}\n`;
+          });
         conversationContext += '---\n';
       });
     }
