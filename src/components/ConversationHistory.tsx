@@ -52,7 +52,7 @@ export const ConversationHistory: React.FC<ConversationHistoryProps> = ({
       </div>
       <div className="conversation-history-content">
         <div className="conversation-list">
-          {conversations.slice().reverse().map((conversation) => (
+          {conversations.map((conversation) => (
             <div
               key={conversation.id}
               className={`conversation-item ${

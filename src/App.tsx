@@ -264,14 +264,15 @@ function App() {
     if (isNewConversation) {
       setChatState(prev => ({
         ...prev,
-        conversations: [...prev.conversations, conversation]
+        conversations: [conversation, ...prev.conversations]
       }));
     } else {
       setChatState(prev => ({
         ...prev,
-        conversations: prev.conversations.map(conv =>
-          conv.id === conversationId ? conversation : conv
-        )
+        conversations: [
+          conversation,
+          ...prev.conversations.filter(conv => conv.id !== conversationId)
+        ]
       }));
     }
     setSelectedConversation(conversation);
