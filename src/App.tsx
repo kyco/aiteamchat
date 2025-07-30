@@ -750,12 +750,26 @@ function App() {
     setShowAddMembers(false);
     setShowSettings(false);
     setMemberInfoOpenedFromManagement(false); // Reset the flag
-    // Update active tab to primary if multiple responses in the latest exchange, otherwise to the single member
+    
+    // Get the latest exchange to determine which members to select
     const latestExchange = conversation.exchanges[conversation.exchanges.length - 1];
+    
+    // Update selected members to match those from the latest exchange
+    let conversationMembers = latestExchange?.askedMembers || [];
+    
+    // Fallback: if askedMembers is empty (backward compatibility), try to determine from responses
+    if (conversationMembers.length === 0 && latestExchange?.responses?.length > 0) {
+      const memberIds = latestExchange.responses.map(response => response.memberId);
+      conversationMembers = allMembers.filter(member => memberIds.includes(member.id));
+    }
+    
+    // Update active tab to primary if multiple responses in the latest exchange, otherwise to the single member
     const newActiveTab = latestExchange?.responses.length > 1 ? 'primary' :
       (latestExchange?.responses[0]?.memberId || 'primary');
+    
     setChatState(prev => ({
       ...prev,
+      selectedMembers: conversationMembers,
       activeTab: newActiveTab
     }));
   };
