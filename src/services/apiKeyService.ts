@@ -1,4 +1,5 @@
 import { dbService } from './database';
+import { env } from '../config/env';
 
 const API_KEY_SETTING = 'openai_api_key';
 
@@ -25,6 +26,7 @@ export class ApiKeyService {
       const userApiKey = await dbService.getSetting(API_KEY_SETTING);
       if (userApiKey && userApiKey.trim() !== '') {
         this.cachedApiKey = userApiKey;
+        console.log('Using user-stored API key');
         return userApiKey;
       }
     } catch (error) {
@@ -32,8 +34,15 @@ export class ApiKeyService {
     }
 
     // Fall back to environment variable
-    const envApiKey = process.env.REACT_APP_OPENAI_API_KEY || '';
+    const envApiKey = env.OPENAI_API_KEY;
     this.cachedApiKey = envApiKey;
+
+    if (envApiKey) {
+      console.log('Using environment API key');
+    } else {
+      console.warn('No API key found in environment or user settings');
+    }
+
     return envApiKey;
   }
 
