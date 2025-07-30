@@ -1,4 +1,4 @@
-  <img src="public/logo-large.png" alt="AI Team Chat Logo" width="200" style="margin-bottom: 20px;">
+  <img src="public/logo.png" alt="AI Team Chat Logo" width="100" style="margin-bottom: 20px;">
 
 # AI Team Chat
 
