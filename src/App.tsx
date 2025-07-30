@@ -813,7 +813,7 @@ function App() {
         <aside className="sidebar">
           <div className="app-header">
             <div className="app-header-content">
-              <h1>AI Team Chat</h1>
+              <img src="/logo.png" alt="AI Team Chat" className="app-logo" />
               <button
                 className="settings-btn"
                 onClick={handleShowSettings}

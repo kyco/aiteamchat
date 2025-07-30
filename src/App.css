@@ -37,15 +37,16 @@ body {
 }
 
 .app-header {
-  padding: 20px;
+  padding: 20px 20px 15px 20px;
   border-bottom: 1px solid #e5e7eb;
   background-color: white;
 }
 
-.app-header h1 {
-  font-size: 24px;
-  color: #111827;
-  margin-bottom: 8px;
+.app-logo {
+  height: 48px;
+  width: auto;
+  max-width: calc(100% - 60px); /* Leave space for settings button */
+  object-fit: contain;
 }
 
 .selected-member {
@@ -2105,7 +2106,8 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 17px; /* Increased from 8px for more breathing room */
+  gap: 16px; /* Add space between logo and settings button */
 }
 
 .settings-btn {
@@ -2116,6 +2118,7 @@ body {
   padding: 8px;
   border-radius: 6px;
   transition: background-color 0.2s;
+  flex-shrink: 0; /* Prevent settings button from shrinking */
 }
 
 .settings-btn:hover {
