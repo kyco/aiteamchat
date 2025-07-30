@@ -71,8 +71,9 @@ export const Settings: React.FC<SettingsProps> = ({ onClose }) => {
       <div className="member-management-content">
         <div className="setting-section">
           <h4 className="setting-label">OpenAI API Key</h4>
+          
           <p className="setting-description">
-            Enter your OpenAI API key to enable AI responses. If left empty, the app will use the default development key (if available).
+            Enter your OpenAI API key to enable AI responses.
           </p>
 
           <div className="api-key-input-container">
@@ -122,6 +123,10 @@ export const Settings: React.FC<SettingsProps> = ({ onClose }) => {
           )}
 
           <div className="setting-info">
+            <p className="privacy-note">
+              <strong>🔒 Privacy & Security:</strong> Your API key is stored locally in your browser and never sent to any server except OpenAI. You can delete it at any time by clearing the field and saving.
+            </p>
+            
             <p>
               <strong>How to get an API key:</strong>
             </p>
@@ -131,10 +136,6 @@ export const Settings: React.FC<SettingsProps> = ({ onClose }) => {
               <li>Click "Create new secret key"</li>
               <li>Copy the key and paste it here</li>
             </ol>
-
-            <p className="privacy-note">
-              <strong>Privacy:</strong> Your API key is stored locally in your browser and never sent to any server except OpenAI.
-            </p>
           </div>
         </div>
       </div>
