@@ -72,7 +72,7 @@ export const openaiApiCall = async (
     const completion = await openai.chat.completions.create({
       model: OPENAI_MODEL,
       messages,
-      max_tokens: 500,
+      max_tokens: 2000,
       temperature: 0.7,
     });
 
