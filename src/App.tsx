@@ -178,6 +178,25 @@ function App() {
     }
   };
 
+  // Helper function to save conversation to database
+  const saveConversationToDatabase = (conversationId: string, logMessage: string) => {
+    if (isDbInitialized) {
+      setTimeout(() => {
+        setChatState(prev => {
+          const currentConversation = prev.conversations.find(conv => conv.id === conversationId);
+          if (currentConversation) {
+            dbService.saveConversation(currentConversation).then(() => {
+              console.log(logMessage);
+            }).catch(error => {
+              console.error('Failed to save conversation:', error);
+            });
+          }
+          return prev;
+        });
+      }, 50);
+    }
+  };
+
   const handleSendMessage = async (content: string) => {
     // Auto-select first user if no members are selected
     if (chatState.selectedMembers.length === 0) {
@@ -307,6 +326,9 @@ function App() {
           }
           return prev;
         });
+
+        // Save individual member response to database
+        saveConversationToDatabase(conversationId, `Member response from ${memberId} saved to database`);
       };
 
       // Start parallel API calls for all members
@@ -352,6 +374,9 @@ function App() {
           }
           return prev;
         });
+
+        // Save the "generating-summary" phase to database
+        saveConversationToDatabase(conversationId, 'Conversation with generating-summary phase saved to database');
 
         try {
           const summary = await generatePrimarySummary(
@@ -403,6 +428,9 @@ function App() {
             return prev;
           });
 
+          // Save the completed summary to database
+          saveConversationToDatabase(conversationId, 'Conversation with completed summary saved to database');
+
         } catch (error) {
           console.error('Summary generation failed for ID:', summaryId, error);
 
@@ -444,6 +472,9 @@ function App() {
             }
             return prev;
           });
+
+          // Save the failed summary state to database
+          saveConversationToDatabase(conversationId, 'Conversation with failed summary saved to database');
         }
       };
 
