@@ -49,6 +49,15 @@ body {
   object-fit: contain;
 }
 
+.app-title {
+  font-size: 22px;
+  font-weight: bold;
+  margin: 0;
+  flex: 1;
+  max-height: 48px; /* Match logo height */
+  line-height: 48px; /* Center vertically */
+}
+
 .selected-member {
   color: #6b7280;
   font-size: 14px;
